@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Controller, Get, Param } from '@nestjs/common'
 import { TablesService } from './tables.service'
 
 @Controller('tables')
@@ -9,9 +9,9 @@ export class TablesController {
         return this.tablesService.findAll()
     }
 
-    @Get(":id")
-    findOne(@Param("id") id : number){
-        return this.tablesService.findOne(id)
+    @Get(":name")
+    findOne(@Param("name") name : string){
+        return this.tablesService.findOne(name)
     }
 }
 
