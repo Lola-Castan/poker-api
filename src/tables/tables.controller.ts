@@ -21,11 +21,11 @@ export class TablesController {
     }
 
     //* Actions
-    @Get(":id/small-blind")
-    smallBlind(@Param("id") id : number, @Request() req : any) {
-        // user ? token ?
-        this.tablesService.smallBlind(id, req)
-    }
+    // @Get(":id/small-blind")
+    // smallBlind(@Param("id") id : number, @Request() req : any) {
+    //     // user ? token ?
+    //     this.tablesService.smallBlind(id, req)
+    // }
 
     @Get(":id/big-blind")
     bigBlind(@Param("id") id : number) {
@@ -37,6 +37,5 @@ export class TablesController {
     join(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
         this.tablesService.join(tableId, body.userId)
     }
-
 }
 

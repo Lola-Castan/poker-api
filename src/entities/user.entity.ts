@@ -21,8 +21,6 @@ export class User {
 
   isBot: boolean = false;
 
-  isWaiting: boolean = false;
-
   @Column({default:1000})
   money: number;
 

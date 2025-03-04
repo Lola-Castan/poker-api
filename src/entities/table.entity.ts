@@ -9,4 +9,5 @@ export class Table {
     pot: number = 0
     // todo ouark
     isBeingPlayed: boolean = false
+    waitingPlayers: User[] = []
 }

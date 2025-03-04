@@ -1,6 +1,6 @@
 import { Table } from "../entities/table.entity"
 import { DecksService } from "../decks/decks.service"
-import { Inject, Injectable, forwardRef } from "@nestjs/common"
+import { Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
 import { User } from "../entities/user.entity"
 import { SMALL_BLIND } from 'src/constants'
@@ -71,19 +71,47 @@ export class TablesService {
         let user = await this.usersservice.findOne(userId)
 
         if(!table) {
-            throw new Error("Table not found")
+            // todo error + deplacer dans controleur
+            throw new NotFoundException("Table not found")
         }
 
         if(!user) {
             throw new Error("User not found")
         }
 
-        table.players.push(user)
+        if(table.isBeingPlayed) {
+            table.waitingPlayers.push(user)
+            return // todo
+        } else {
+            this.joinTable(table, user)
 
-        if(table.isBeingPlayed == true) {
-            user.isWaiting = true
-            return
+            if(table.players.length == 1) {
+                const bot1 = await this.usersservice.createBot('bot1')
+                const bot2 = await this.usersservice.createBot('bot2')
+
+                this.joinTable(table, bot1, bot2)
+                this.startGame(table)
+            }
+
+            // todo : gérer quand ya plusieurs vrai players
         }
-        return table
+    }
+
+    private joinTable(table: Table, ...users : User[]){
+        users.forEach(user => { 
+            table.players.push(user);
+            console.log(user.name + " joined table " + table.name)
+        }); 
+    }
+
+    private async startGame(table: Table) {
+        table.isBeingPlayed = true
+        console.log('The game on table ' + table.name + ' has started !!!!')
+
+        for (let player of table.players) {
+            player.hand = await this.decksservice.draw(table.id, player.id, 2)
+            // position + gérer le dealer (à cahque partie la position change d'un rang)
+            player.position = table.players.indexOf(player)
+        }
     }
 }
