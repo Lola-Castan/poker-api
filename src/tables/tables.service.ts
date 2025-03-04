@@ -33,7 +33,7 @@ export class TablesService {
 
     // todo : ajouter gestion des utilisateurs (après merge avec Maria)
     // 1er joueur à commencer à parler, il doit miser la petite blinde
-    smallBlind(tableName: string) {
+    smallBlind(tableName: string, user: any) {
         let table = this.findOne(tableName)
         // user : -10 balles // use SMALL_BLIND
     }

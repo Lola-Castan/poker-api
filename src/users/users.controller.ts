@@ -1,4 +1,4 @@
-import { Body, Controller, Dependencies, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Dependencies, Get, Param, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from 'src/entities/user.entity';
 
@@ -10,8 +10,8 @@ export class UsersController {
         async findAll(): Promise<User[]>{
             return this.usersService.findAll();
         }
-    @Get(":email")
-    async findOne(@Param("email") email : string): Promise<User | null>{
+    @Get(':email')
+    async findOne(@Param('email') email : string): Promise<User | null>{
         return this.usersService.findByEmail(email);
     }
 
@@ -20,4 +20,6 @@ export class UsersController {
         console.log("Reçu dans le body :", body);
         return this.usersService.create(body);
     }
+
+
 }

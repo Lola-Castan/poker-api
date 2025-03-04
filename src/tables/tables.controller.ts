@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller,Request, Get, Param, Post } from '@nestjs/common'
 import { TablesService } from './tables.service'
 
 @Controller('tables')
@@ -22,9 +22,9 @@ export class TablesController {
 
     //? Actions ?
     @Get(":tableName/small-blind")
-    smallBlind(@Param("tableName") tableName : string) {
+    smallBlind(@Param("tableName") tableName : string, @Request() req : any) {
         // user ? token ?
-        return this.tablesService.smallBlind(tableName)
+        return this.tablesService.smallBlind(tableName, req)
     }
 
     @Get(":tableName/small-blind")
@@ -32,5 +32,6 @@ export class TablesController {
         // user ? token ?
         return this.tablesService.bigBlind(tableName)
     }
+
 }
 
