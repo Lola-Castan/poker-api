@@ -40,8 +40,12 @@ export class TablesService {
     }
 
     // 1er joueur à commencer à parler, il doit miser la petite blinde
-    smallBlind(id: number) {
+    async smallBlind(id: number, payload:any) {
+        console.log(payload)
         let table = this.findOne(id)
+        let user = await this.usersservice.findByEmail(payload.email)
+        if(user)
+            this.usersservice.pay(user, 10)
         // user : -10 balles // use SMALL_BLIND
     }
 
