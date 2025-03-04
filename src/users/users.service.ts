@@ -2,6 +2,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArgumentOutOfRangeError } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -27,14 +28,18 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
 
-  async pay(user: User, amount: number): Promise<User | undefined>{
-    let userToUpdate = await this.userRepository.findOneBy({id: user.id})
-    if(userToUpdate){
+    async pay(user: User, amount: number): Promise<User | null>{
+      let userToUpdate = await this.userRepository.findOneBy({id: user.id})
+      if(!userToUpdate){
+        throw new Error('utilisateur non trouvé');
+      }
+      if(userToUpdate.money < amount){
+        throw new Error('Fonds insuffisants');
+      }
       userToUpdate.money -= amount
       return await this.userRepository.save(userToUpdate)
     }
-  }
-
+    
   async createBot(name: string) {
     const bot = new User();
     bot.name = name;
