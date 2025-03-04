@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Card } from 'src/entities/card.entity';
+import { TablesService } from 'src/tables/tables.service';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class DecksService {
-    constructor() {
-        console.log("DecksService constructor")  
-    }
+    constructor(
+        @Inject(forwardRef(() => TablesService))
+        public tablesservice: TablesService, public usersservice: UsersService
+    ) {}
 
     createDeck() : Card[]{
         let cards : Card[] = []
@@ -22,21 +25,41 @@ export class DecksService {
         return cards
     }
 
+    async draw(tableId : number, userId : number, count : number) {
+        let table = await this.tablesservice.findOne(tableId)
+        let user = await this.usersservice.findOne(userId)
+
+        if(!table) {
+            throw new Error("Table not found")
+        }
+
+        if(!user) {
+            throw new Error("User not found")
+        }
+
+        for (let i = 0; i < count; i++) {
+            let newCard = table.deck.pop()
+
+            if (newCard) {
+            user.hand.push(newCard)
+            } else {
+            throw new Error("No more cards in the deck")
+            }
+        }
+
+        return user.hand
+    }
+
     // Shuffle snippet found on StackOverflow
     shuffle(deck : Card[]) {
         const array = deck
         let currentIndex = array.length
-        // While there remain elements to shuffle...
         while (currentIndex != 0) {
-            // Pick a remaining element...
             let randomIndex = Math.floor(Math.random() * currentIndex)
             currentIndex--
-
-            // And swap it with the current element.
             [array[currentIndex], array[randomIndex]] = [
                 array[randomIndex], array[currentIndex]]
         }
-
         return deck
     }
 }

@@ -2,7 +2,5 @@ POST http://localhost:3000/tables HTTP/1.1
 content-type: application/json
 
 {
-    "name": "2"
+    "name": "table10"
 }
-
-// marche pas (table est null tout le temps)

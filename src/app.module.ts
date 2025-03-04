@@ -10,6 +10,10 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 
+import { TablesModule } from './tables/tables.module';
+
+// todo : si on charge le user service dans le user module pas besoin de le charger ici ?
+
 @Module({
   imports: [TypeOrmModule.forRoot({
     type: "sqlite",
@@ -18,7 +22,8 @@ import { User } from './entities/user.entity';
     synchronize: true
   }),
     UsersModule,
-    AuthModule],
+    AuthModule,
+    TablesModule],
   controllers: [AppController, UsersController, AuthController],
   providers: [AppService, UsersService, AuthService],
 })

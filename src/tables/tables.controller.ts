@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common'
 import { TablesService } from './tables.service'
 
 @Controller('tables')
@@ -9,9 +9,9 @@ export class TablesController {
         return this.tablesService.findAll()
     }
 
-    @Get(":name")
-    findOne(@Param("name") name : string){
-        return this.tablesService.findOne(name)
+    @Get(":id")
+    findOne(@Param("id", ParseIntPipe) id : number){
+        return this.tablesService.findOne(id)
     }
 
     @Post()
@@ -20,17 +20,22 @@ export class TablesController {
         this.tablesService.createTable(body);
     }
 
-    //? Actions ?
-    @Get(":tableName/small-blind")
-    smallBlind(@Param("tableName") tableName : string) {
+    //* Actions
+    @Get(":id/small-blind")
+    smallBlind(@Param("id") id : number) {
         // user ? token ?
-        return this.tablesService.smallBlind(tableName)
+        this.tablesService.smallBlind(id)
     }
 
-    @Get(":tableName/small-blind")
-    bigBlind(@Param("tableName") tableName : string) {
+    @Get(":id/big-blind")
+    bigBlind(@Param("id") id : number) {
         // user ? token ?
-        return this.tablesService.bigBlind(tableName)
+        this.tablesService.bigBlind(id)
+    }
+
+    @Post(":tableId/join")
+    join(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
+        this.tablesService.join(tableId, body.userId)
     }
 }
 
