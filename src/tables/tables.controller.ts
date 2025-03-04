@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Request } from '@nestjs/common'
 import { TablesService } from './tables.service'
 
 @Controller('tables')
@@ -22,9 +22,9 @@ export class TablesController {
 
     //* Actions
     @Get(":id/small-blind")
-    smallBlind(@Param("id") id : number) {
+    smallBlind(@Param("id") id : number, @Request() req : any) {
         // user ? token ?
-        this.tablesService.smallBlind(id)
+        this.tablesService.smallBlind(id, req)
     }
 
     @Get(":id/big-blind")
@@ -37,5 +37,6 @@ export class TablesController {
     join(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
         this.tablesService.join(tableId, body.userId)
     }
+
 }
 

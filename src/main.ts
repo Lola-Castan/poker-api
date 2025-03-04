@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  require('dotenv').config();
   const config = new DocumentBuilder()
     .setTitle('Poker API')
     .setDescription('The Poker API description')
