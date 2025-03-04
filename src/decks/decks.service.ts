@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Card } from 'src/entities/card.entity';
-import { Deck } from 'src/entities/deck.entity';
 
 @Injectable()
 export class DecksService {
@@ -37,5 +36,7 @@ export class DecksService {
             [array[currentIndex], array[randomIndex]] = [
                 array[randomIndex], array[currentIndex]]
         }
+
+        return deck
     }
 }
