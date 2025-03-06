@@ -14,31 +14,6 @@ export class UsersService {
     async findAll(): Promise<User[]>{
         return this.userRepository.find();
     }
-    // private users: User[]
-    // constructor(){
-    //     this.users = [
-    //         {id: 1, name: "Jean", email: "jean@mail.com", password: "1234"},
-    //         {id: 2, name: "Alice", email: "alice@mail.com", password: "1234"},
-    //     ];
-    // }
-
-    // create(user: any){
-    //     this.users.push(user);
-    //     return user;
-    // }
-
-    // findAll(): User[]{
-    //     return this.users;
-    // }
-    // async findOne(name: string): Promise<{ name: string; password: string } | undefined> {
-    //     return this.users.find(user => user.name === name);
-    // }
-    // async findByEmail(email: string): Promise<User | undefined> {
-    //     return this.users.find(user => user.email === email);
-    //   }
-    // async findOne(name: string): Promise<User | null> {
-    //     return await this.userRepository.findOne({ where: { name } });
-    //   }
 
     //! fonctionne comme ça
     async findOne(id: number): Promise<User | null> {
@@ -54,13 +29,10 @@ export class UsersService {
       return await this.userRepository.save(user);
     }
 
-    async pay(user: User, amount: number): Promise<User | null>{
-      let userToUpdate = await this.userRepository.findOneBy({id: user.id})
+    async pay(id: number, amount: number): Promise<User | null>{
+      let userToUpdate = await this.userRepository.findOneBy({ id });
       if(!userToUpdate){
-        throw new Error('utilisateur non trouvé');
-      }
-      if(userToUpdate.money < amount){
-        throw new Error('Fonds insuffisants');
+        return null;
       }
       userToUpdate.money -= amount
       return await this.userRepository.save(userToUpdate)

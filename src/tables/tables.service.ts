@@ -44,16 +44,21 @@ export class TablesService {
         console.log(payload)
         let table = this.findOne(id)
         let user = await this.usersservice.findByEmail(payload.email)
+        const smallBlind = SMALL_BLIND
         if(user)
-            this.usersservice.pay(user, 10)
-        // user : -10 balles // use SMALL_BLIND
+            this.usersservice.pay(id, smallBlind)
     }
 
     // 2ème joueur à commencer à parler, il doit miser le double de la petite blinde
-    bigBlind(id: number) {
+    async bigBlind(id: number, payload:any) {
         let table = this.findOne(id)
-        // user : -20 balles // use SMALL_BLIND * 2
+        let user = await this.usersservice.findByEmail(payload.email)
+        const bigBlind = SMALL_BLIND * 2
+        if(user)
+            this.usersservice.pay(id, bigBlind)
     }
+
+    //raise +100
 
     // Désigne le fait de simplement payer la mise de son adversaire pour continuer le déroulement du coup, sans surenchérir.
     call(id: number) {

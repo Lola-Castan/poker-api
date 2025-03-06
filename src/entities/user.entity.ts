@@ -27,4 +27,6 @@ export class User {
   money: number;
 
   position?: number;
+
+  bid: number = 0;
 }
