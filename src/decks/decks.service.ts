@@ -1,5 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Card } from 'src/entities/card.entity';
+import { Deck } from 'src/entities/deck.entity';
 import { TablesService } from 'src/tables/tables.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -25,29 +26,38 @@ export class DecksService {
         return cards
     }
 
-    async draw(tableId : number, userId : number, count : number) {
-        let table = await this.tablesservice.findOne(tableId)
-        let user = await this.usersservice.findOne(userId)
+    // async draw(tableId : number, count : number, userId?: number) {
+    //     let table = await this.tablesservice.findOne(tableId)
 
-        if(!table) {
-            throw new Error("Table not found")
-        }
+    //     if(!userId && table) {
+    //         for (let i = 0; i < count; i++) {
+    //             let newCard = table.deck.pop()
 
-        if(!user) {
-            throw new Error("User not found")
-        }
+    //             if (newCard) {
+    //                 table.discardedCards.push(newCard)
+    //             }
+    //         }
+    //         return table.discardedCards
 
-        for (let i = 0; i < count; i++) {
-            let newCard = table.deck.pop()
+    //     } else if(userId) {
+    //         let user = await this.usersservice.findOne(userId)
 
-            if (newCard) {
-            user.hand.push(newCard)
-            } else {
-            throw new Error("No more cards in the deck")
-            }
-        }
+    //         if(user && table) {
+    //             for (let i = 0; i < count; i++) {
+    //                 let newCard = table.deck.pop()
 
-        return user.hand
+    //                 if (newCard) {
+    //                     user.hand.push(newCard)
+    //                 }
+    //             }
+    //             return user.hand
+    //         }
+    //     }
+    // }
+
+    async draw(deck : Card[]) {
+        let newCard = deck.pop()
+        return newCard
     }
 
     // Shuffle snippet found on StackOverflow

@@ -24,5 +24,5 @@ export class User {
   @Column({default:1000})
   money: number;
 
-  position?: number;
+  isWaiting: boolean = true;
 }
