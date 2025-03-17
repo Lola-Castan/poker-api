@@ -51,10 +51,20 @@ export class TablesController {
         this.tablesService.join(tableId, body.userId)
     }
 
-    @Post("fold")
-    fold(@Param() @Body() body: any) {
-        let userId = body.userId
-        this.tablesService.fold(userId)
+    @Post(":tableId/fold")
+    async fold(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
+        const userId = body.userId
+        let table = await this.findOne(tableId)
+        let user = await this.usersService.findOne(userId)
+
+        if(!table) {
+            throw new NotFoundException("Table with id " + tableId + " not found")
+        }
+
+        if(!user) {
+            throw new NotFoundException("User with id " + userId + " not found")
+        }
+        this.tablesService.fold(userId, tableId)
     }
 }
 

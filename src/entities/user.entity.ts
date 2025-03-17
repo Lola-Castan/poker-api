@@ -25,4 +25,6 @@ export class User {
   money: number;
 
   isWaiting: boolean = true;
+
+  hasActed: boolean = false;
 }

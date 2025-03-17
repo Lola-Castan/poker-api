@@ -5,7 +5,8 @@ import { UsersService } from "../users/users.service"
 import { User } from "../entities/user.entity"
 import { SMALL_BLIND } from 'src/constants'
 import { HAND_LENGHT } from 'src/constants'
-import { FLOP_LENGHT } from 'src/constants'
+import { DISPLAYED_CARDS_LENGHT } from 'src/constants'
+// import { FLOP_LENGHT } from 'src/constants'
 
 @Injectable()
 export class TablesService {
@@ -68,12 +69,18 @@ export class TablesService {
     }
 
     // Lorsqu'un joueur décide de se coucher, il abandonne sa main et ne peut plus prétendre à remporter le pot.
-    async fold(userId: number) {
+    async fold(userId: number, tableId: number) {
+        let table = await this.findOne(tableId)
         let user = await this.usersservice.findOne(userId)
 
-        if(user) {
+        if(user && table) {
+            // ajouter les cartes de l'utilisateur dans les cartes défaussées
+            table.discardedCards.push(...user.hand)
             user.hand = []
             user.isWaiting = true
+            user.hasActed = true
+            console.log(user.name + ' has folded !')
+            //! utiliser l'userid c'est con ??? comment ils font les bots ? trouver autrement
         }
     }
 
@@ -123,8 +130,46 @@ export class TablesService {
             }
         }
 
-        // todo gérer dealer
-        // todo gérer cartes de la table
+        // 1er tour
+        if(table.pot == 0) {
+            table.currentDealer = Math.floor(Math.random() * (table.players.length))
+            console.log('The dealer is ' + table.players[table.currentDealer].name)
+    
+            this.burn(table)
+            for (let i = 0; i < DISPLAYED_CARDS_LENGHT; i++) {
+                let card = (await this.decksservice.draw(table.deck))
+                if(card) {
+                    table.displayedCards.push(card)
+                }
+            }
+    
+            let playerCount = table.players.length;
+            for (let i = 0; i < playerCount; i++) {
+                let currentPlayer = (table.currentDealer + i + 1) % playerCount;
+                if (i === 0) {
+                    // await this.smallBlind(table.players[currentPlayer].id);
+                } else if (i === 1) {
+                    // await this.bigBlind(table.players[currentPlayer].id);
+                } else {
+                    // Wait for the player's action
+                    await this.waitForPlayerAction(table.players[currentPlayer]);
+                }
+            }
+            // autre façon
+            // let nextPlayer = (table.currentDealer + 1) % table.players.length
+            // table.players[nextPlayer].id -> smallBlind
+            // table.players[nextPlayer + 1].id -> bigBlind
+        }
+    }
+
+    async waitForPlayerAction(player: User) {
+        console.log('Waiting for ' + player.name + ' to act')
+        // todo ajouter player.hasActed = true dans les actions
+        // todo nettoyer player.hasActed = false à chaque tour
+        while (!player.hasActed) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+        }
+        console.log(player.name + ' has acted')
     }
 
     async burn(table: Table) {
@@ -134,21 +179,22 @@ export class TablesService {
         }
     }
 
-    async flop(table: Table) {
-        this.burn(table)
-        for (let i = 0; i < FLOP_LENGHT; i++) {
-            let card = await this.decksservice.draw(table.deck)
-            if(card) {
-                table.deck.push(card)
-            }
-        }
-    }
+    // TODO : tours suivants
+    // async flop(table: Table) {
+    //     this.burn(table)
+    //     for (let i = 0; i < FLOP_LENGHT; i++) {
+    //         let card = await this.decksservice.draw(table.deck)
+    //         if(card) {
+    //             table.deck.push(card)
+    //         }
+    //     }
+    // }
 
-    async turn(table: Table) {
-        this.burn(table)
-        let card = await this.decksservice.draw(table.deck)
-        if(card) {
-            table.deck.push(card)
-        }
-    }
+    // async turn(table: Table) {
+    //     this.burn(table)
+    //     let card = await this.decksservice.draw(table.deck)
+    //     if(card) {
+    //         table.deck.push(card)
+    //     }
+    // }
 }
