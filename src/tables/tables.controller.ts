@@ -1,9 +1,11 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Request } from '@nestjs/common'
 import { TablesService } from './tables.service'
+import { UsersService } from 'src/users/users.service';
+import { NotFoundException } from "@nestjs/common"
 
 @Controller('tables')
 export class TablesController {
-    constructor(private tablesService : TablesService) {}
+    constructor(private tablesService : TablesService, private usersService: UsersService) {}
     @Get()
     findAll() {
         return this.tablesService.findAll()
@@ -34,8 +36,35 @@ export class TablesController {
     // }
 
     @Post(":tableId/join")
-    join(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
+    async join(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
+        const userId = body.userId
+        let table = await this.findOne(tableId)
+        let user = await this.usersService.findOne(userId)
+
+        if(!table) {
+            throw new NotFoundException("Table with id " + tableId + " not found")
+        }
+
+        if(!user) {
+            throw new NotFoundException("User with id " + userId + " not found")
+        }
         this.tablesService.join(tableId, body.userId)
+    }
+
+    @Post(":tableId/fold")
+    async fold(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
+        const userId = body.userId
+        let table = await this.findOne(tableId)
+        let user = await this.usersService.findOne(userId)
+
+        if(!table) {
+            throw new NotFoundException("Table with id " + tableId + " not found")
+        }
+
+        if(!user) {
+            throw new NotFoundException("User with id " + userId + " not found")
+        }
+        this.tablesService.fold(userId, tableId)
     }
 }
 

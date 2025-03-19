@@ -24,6 +24,9 @@ export class User {
   @Column({default:1000})
   money: number;
 
+  isWaiting: boolean = true;
+
+  hasActed: boolean = false;
   position?: number;
 
   bid: number = 0;
