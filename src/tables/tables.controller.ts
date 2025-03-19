@@ -23,16 +23,18 @@ export class TablesController {
     }
 
     //* Actions
+    // pas besoin de route
     // @Get(":id/small-blind")
     // smallBlind(@Param("id") id : number, @Request() req : any) {
     //     // user ? token ?
     //     this.tablesService.smallBlind(id, req)
     // }
 
-    @Get(":id/big-blind")
-    // bigBlind(@Param("id") id : number) {
+    // pas besoin de route
+    // @Get(":id/big-blind")
+    // bigBlind(@Param("tableId") tableId : number) {
     //     // user ? token ?
-    //     this.tablesService.bigBlind(id)
+    //     this.tablesService.bigBlind(tableId)
     // }
 
     @Post(":tableId/join")
