@@ -43,20 +43,20 @@ export class TablesService {
     }
 
     // 1er joueur à commencer à parler, il doit miser la petite blinde
-    async smallBlind(table: Table, user : User, payload: any) {
-        console.log(payload)
+    // todo : important
+    async smallBlind(table: Table, user : User) {
         const smallBlind = SMALL_BLIND
 
-        let player = table.players.find(player => player.id === user.id)
-        if(player) {
-            player.bid = smallBlind
-            player.money -= smallBlind
+        if(user) {
+            user.bid = smallBlind
+            user.money -= smallBlind
         }
         this.updatePot(table)
     }
 
     // 2ème joueur à commencer à parler, il doit miser le double de la petite blinde
-    async bigBlind(table: Table, user: User, payload:any) {
+    // todo : important
+    async bigBlind(table: Table, user: User) {
         const bigBlind = SMALL_BLIND * 2
 
         let player = table.players.find(player => player.id === user.id)
@@ -183,7 +183,7 @@ export class TablesService {
             for (let i = 0; i < playerCount; i++) {
                 let currentPlayer = (table.currentDealer + i + 1) % playerCount;
                 if (i === 0) {
-                    // await this.smallBlind(table.players[currentPlayer].id);
+                    // await this.smallBlind(table, table.players[currentPlayer]);
                 } else if (i === 1) {
                     // await this.bigBlind(table.players[currentPlayer].id);
                 } else {
