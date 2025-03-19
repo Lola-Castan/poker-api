@@ -27,4 +27,7 @@ export class User {
   isWaiting: boolean = true;
 
   hasActed: boolean = false;
+  position?: number;
+
+  bid: number = 0;
 }

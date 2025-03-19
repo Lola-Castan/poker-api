@@ -22,5 +22,16 @@ export class UsersController {
         return this.usersService.create(body);
     }
 
-
+    @Post(":id/pay")
+    async pay(@Param("id") id: number, @Body() body: { amount: number }): Promise<User | null> {
+       let userToUpdate = await this.usersService.pay(id, body.amount);
+        if(!userToUpdate){
+            throw new Error('Utilisateur non trouvé');
+          }
+          if(userToUpdate.money < body.amount){
+            throw new Error('Fonds insuffisants');
+          }
+          return userToUpdate;
+    }
+    
 }
