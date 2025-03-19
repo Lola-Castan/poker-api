@@ -22,8 +22,6 @@ cd poker-api
 # Installer les dépendances
 npm install
 
-# Configurer les variables d'environnement (exemple : .env)
-
 # Lancer l'application en mode développement
 npm run start:dev
 
@@ -41,7 +39,6 @@ npm run start:dev
 
 ## Exemple d'utilisation
 
-
 ## Contributeurs
-- **Maria IBRAGIMOVA** - Développement
-- **Lola CASTAN** - Développement
+- [Maria IBRAGIMOVA](https://github.com/Mashoulya) - Développeuse
+- [Lola CASTAN](https://github.com/Lola-Castan) - Développeuse
