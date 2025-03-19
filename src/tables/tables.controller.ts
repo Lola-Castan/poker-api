@@ -29,7 +29,7 @@ export class TablesController {
     //     this.tablesService.smallBlind(id, req)
     // }
 
-    @Get(":id/big-blind")
+    // @Get(":id/big-blind")
     // bigBlind(@Param("id") id : number) {
     //     // user ? token ?
     //     this.tablesService.bigBlind(id)

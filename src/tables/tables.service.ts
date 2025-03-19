@@ -1,6 +1,6 @@
 import { Table } from "../entities/table.entity"
 import { DecksService } from "../decks/decks.service"
-import { Inject, Injectable, forwardRef } from "@nestjs/common"
+import { Inject, Injectable, NotFoundException, forwardRef } from "@nestjs/common"
 import { UsersService } from "../users/users.service"
 import { User } from "../entities/user.entity"
 import { SMALL_BLIND } from 'src/constants'
@@ -131,6 +131,7 @@ export class TablesService {
                     const bot1 = await this.usersservice.createBot('Mario')
                     const bot2 = await this.usersservice.createBot('Luigi')
                     this.joinTable(table, bot1, bot2)
+                    // todo : wtf le dealer
                     table.currentDealer = Math.floor(Math.random() * (table.players.length));
                     this.startGame(table)
 
@@ -156,6 +157,7 @@ export class TablesService {
         console.log('The game on table ' + table.name + ' has started !!!')
 
         for (let player of table.players) {
+            // renommer i en round (enfin joueur qui joueur)
             for (let i = 0; i < HAND_LENGHT; i++) {
                 const card = await this.decksservice.draw(table.deck)
                 if(card) {
