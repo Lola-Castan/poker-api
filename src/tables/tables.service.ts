@@ -40,29 +40,58 @@ export class TablesService {
     }
 
     // 1er joueur à commencer à parler, il doit miser la petite blinde
-    async smallBlind(id: number, payload:any) {
+    async smallBlind(table: Table, user : User, payload: any) {
         console.log(payload)
-        let table = this.findOne(id)
-        let user = await this.usersservice.findByEmail(payload.email)
         const smallBlind = SMALL_BLIND
-        if(user)
-            this.usersservice.pay(id, smallBlind)
+
+        let player = table.players.find(player => player.id === user.id)
+        if(player) {
+            player.bid = smallBlind
+            player.money -= smallBlind
+        }
+        this.updatePot(table)
     }
 
     // 2ème joueur à commencer à parler, il doit miser le double de la petite blinde
-    async bigBlind(id: number, payload:any) {
-        let table = this.findOne(id)
-        let user = await this.usersservice.findByEmail(payload.email)
+    async bigBlind(table: Table, user: User, payload:any) {
         const bigBlind = SMALL_BLIND * 2
-        if(user)
-            this.usersservice.pay(id, bigBlind)
+
+        let player = table.players.find(player => player.id === user.id)
+        if(player) {
+            player.bid = bigBlind
+            player.money -= bigBlind
+        }
+        this.updatePot(table)
+    }
+    
+    // 3ème joueur qui rajoute une mise qu'il veut
+    async raise(table: Table, user: User, payload: any) {
+
+        let player = table.players.find(player => player.id === user.id);
+        if (!player) {
+            throw new NotFoundException("Joueur non trouvé dans cette table");
+        }
+        let playerRaise = payload.raise;
+    
+        if (player.money < payload.raise) {
+            throw new Error("Pas suffisamment d'argent pour cette mise");
+        }
+    
+        player.bid = playerRaise;
+        player.money -= playerRaise;
+        
+        this.updatePot(table);
     }
 
-    //raise +100
+    async updatePot(table: Table) {
+        table.pot = table.players.reduce((total, player) => total + player.bid, 0);
+    }
+    
 
     // Désigne le fait de simplement payer la mise de son adversaire pour continuer le déroulement du coup, sans surenchérir.
     call(id: number) {
         let table = this.findOne(id)
+
     }
 
     // Lorsqu'un joueur décide de “faire parole” et ne mise rien. L'action revient alors à son adversaire

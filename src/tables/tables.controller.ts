@@ -28,10 +28,10 @@ export class TablesController {
     // }
 
     @Get(":id/big-blind")
-    bigBlind(@Param("id") id : number) {
-        // user ? token ?
-        this.tablesService.bigBlind(id)
-    }
+    // bigBlind(@Param("id") id : number) {
+    //     // user ? token ?
+    //     this.tablesService.bigBlind(id)
+    // }
 
     @Post(":tableId/join")
     join(@Param("tableId", ParseIntPipe) tableId : number, @Body() body: any) {
