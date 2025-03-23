@@ -15,9 +15,11 @@ export class Table {
     pot: number = 0
 
     isBeingPlayed: boolean = false
-    
+
+    @Exclude()
     displayedCards: Card[] = []
 
+    @Exclude()
     discardedCards: Card[] = []
 
     currentDealer?: number

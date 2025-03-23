@@ -1,0 +1,7 @@
+POST http://localhost:3000/tables/1/raise HTTP/1.1
+content-type: application/json
+
+{
+    "userName": "Jean",
+    "payload": 30
+}

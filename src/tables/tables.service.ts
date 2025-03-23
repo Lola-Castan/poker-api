@@ -43,7 +43,6 @@ export class TablesService {
     }
 
     // 1er joueur à commencer à parler, il doit miser la petite blinde
-    // todo : important
     async smallBlind(table: Table, user : User) {
         const smallBlind = SMALL_BLIND
 
@@ -55,57 +54,49 @@ export class TablesService {
     }
 
     // 2ème joueur à commencer à parler, il doit miser le double de la petite blinde
-    // todo : important
     async bigBlind(table: Table, user: User) {
         const bigBlind = SMALL_BLIND * 2
 
-        let player = table.players.find(player => player.id === user.id)
-        if(player) {
-            player.bid = bigBlind
-            player.money -= bigBlind
+        if(user) {
+            user.bid = bigBlind
+            user.money -= bigBlind
         }
         this.updatePot(table)
     }
     
     // 3ème joueur qui rajoute une mise qu'il veut
     async raise(table: Table, user: User, payload: any) {
-
-        let player = table.players.find(player => player.id === user.id);
-        if (!player) {
-            throw new NotFoundException("Joueur non trouvé dans cette table");
-        }
-        let playerRaise = payload.raise;
-    
-        if (player.money < payload.raise) {
-            throw new Error("Pas suffisamment d'argent pour cette mise");
-        }
-    
-        player.bid = playerRaise;
-        player.money -= playerRaise;
+        user.bid = payload
+        user.money -= payload
         
         this.updatePot(table);
+        console.log(user.name + ' has raised by ' + payload + ' !')
+        user.hasActed = true
     }
 
     async updatePot(table: Table) {
-        table.pot = table.players.reduce((total, player) => total + player.bid, 0);
+        table.pot = table.players.reduce((total, player) => total + player.bid, 0)
     }
     
 
     // Désigne le fait de simplement payer la mise de son adversaire pour continuer le déroulement du coup, sans surenchérir.
-    call(id: number) {
-        let table = this.findOne(id)
-
+    call(table: Table, user: User, payload: number) {   
+        user.bid = payload
+        user.money -= payload
+        
+        this.updatePot(table)
+        console.log(user.name + ' has called !')
+        user.hasActed = true
     }
 
-    // Lorsqu'un joueur décide de “faire parole” et ne mise rien. L'action revient alors à son adversaire
-    check(id: number) {
-        let table = this.findOne(id)
-    }
+    // todo : Lorsqu'un joueur décide de “faire parole” et ne mise rien. L'action revient alors à son adversaire
+    // check(id: number) {
+    //     let table = this.findOne(id)
+    // }
 
     // Lorsqu'un joueur décide de se coucher, il abandonne sa main et ne peut plus prétendre à remporter le pot.
-    async fold(userId: number, tableId: number) {
+    async fold(user: User, tableId: number) {
         let table = await this.findOne(tableId)
-        let user = await this.usersservice.findOne(userId)
 
         if(user && table) {
             // ajouter les cartes de l'utilisateur dans les cartes défaussées
@@ -114,7 +105,6 @@ export class TablesService {
             user.isWaiting = true
             user.hasActed = true
             console.log(user.name + ' has folded !')
-            //! utiliser l'userid c'est con ??? comment ils font les bots ? trouver autrement
         }
     }
 
@@ -131,14 +121,6 @@ export class TablesService {
                     const bot1 = await this.usersservice.createBot('Mario')
                     const bot2 = await this.usersservice.createBot('Luigi')
                     this.joinTable(table, bot1, bot2)
-                    // todo : wtf le dealer
-                    table.currentDealer = Math.floor(Math.random() * (table.players.length));
-                    this.startGame(table)
-
-                } else if(table.players.length > 2) {
-                    if(table.currentDealer) {
-                        table.currentDealer = (table.currentDealer + 1) % table.players.length
-                    }
                     this.startGame(table)
                 }
             }
@@ -157,8 +139,7 @@ export class TablesService {
         console.log('The game on table ' + table.name + ' has started !!!')
 
         for (let player of table.players) {
-            // renommer i en round (enfin joueur qui joueur)
-            for (let i = 0; i < HAND_LENGHT; i++) {
+            for (let cardCount = 0; cardCount < HAND_LENGHT; cardCount++) {
                 const card = await this.decksservice.draw(table.deck)
                 if(card) {
                     player.hand.push(card)
@@ -168,7 +149,9 @@ export class TablesService {
 
         // 1er tour
         if(table.pot == 0) {
-            table.currentDealer = Math.floor(Math.random() * (table.players.length))
+            // todo : fix qui permet de tester les actions avec le "vrai joueur" (les actions ne fonctionnent pas avec les bots)
+            // table.currentDealer = Math.floor(Math.random() * (table.players.length))
+            table.currentDealer = 0
             console.log('The dealer is ' + table.players[table.currentDealer].name)
     
             this.burn(table)
@@ -178,34 +161,45 @@ export class TablesService {
                     table.displayedCards.push(card)
                 }
             }
-    
+
             let playerCount = table.players.length;
-            for (let i = 0; i < playerCount; i++) {
-                let currentPlayer = (table.currentDealer + i + 1) % playerCount;
-                if (i === 0) {
-                    // await this.smallBlind(table, table.players[currentPlayer]);
-                } else if (i === 1) {
-                    // await this.bigBlind(table.players[currentPlayer].id);
-                } else {
-                    // Wait for the player's action
-                    await this.waitForPlayerAction(table.players[currentPlayer]);
+
+            let smallBlindPlayerIndex = (table.currentDealer + 1) % playerCount;
+            let bigBlindPlayerIndex = (table.currentDealer + 2) % playerCount;
+
+            await this.smallBlind(table, table.players[smallBlindPlayerIndex]);
+            console.log(table.players[smallBlindPlayerIndex].name + ' is the small blind');
+
+            await this.bigBlind(table, table.players[bigBlindPlayerIndex]);
+            console.log(table.players[bigBlindPlayerIndex].name + ' is the big blind');
+
+            let currentPlayerIndex = (bigBlindPlayerIndex + 1) % playerCount;
+
+            let allBidsEqual = false;
+            while (!allBidsEqual) {
+                allBidsEqual = table.players.every(player => player.bid === table.players[0].bid);
+                if (!allBidsEqual) {
+                    let player = table.players[currentPlayerIndex];
+                    await this.waitForPlayerAction(player);
+                    currentPlayerIndex = (currentPlayerIndex + 1) % playerCount;
                 }
             }
-            // autre façon
-            // let nextPlayer = (table.currentDealer + 1) % table.players.length
-            // table.players[nextPlayer].id -> smallBlind
-            // table.players[nextPlayer + 1].id -> bigBlind
+            console.log('All players have the same bid, the round is over')
         }
     }
 
     async waitForPlayerAction(player: User) {
         console.log('Waiting for ' + player.name + ' to act')
         // todo ajouter player.hasActed = true dans les actions
-        // todo nettoyer player.hasActed = false à chaque tour
         while (!player.hasActed) {
             await new Promise(resolve => setTimeout(resolve, 1000))
         }
         console.log(player.name + ' has acted')
+        player.hasActed = false;
+    }
+
+    getHighestBet(table: Table) {
+        return table.players.reduce((max, player) => Math.max(max, player.bid), 0)
     }
 
     async burn(table: Table) {
